@@ -2,7 +2,6 @@
 #include <stdbool.h>
 
 void basic_data_types(){
-    
     int a = 5;
     float b = 3.14;
     double c = 3.144444444444444444444444444444;
@@ -80,16 +79,34 @@ void area_perimeter_rect(double w, double h) {
    
 }
 
+void argument_ex() {
+
+}
+
 int main(int argc, char *argv[])
 {    
     //basic_data_types();
     //enum_ex();
     //char_ex();
 
+    //data_specifiers();
+
+    /*
     double w = atoi(argv[1]);
     double h = atoi(argv[2]);
-    
-    //data_specifiers();
     area_perimeter_rect(w, h);
+  */
+    
+    int numberOfArgument = argc;
+    char *arg1 = argv[0];
+    char *arg2 = argv[1];
+    char *arg3 = argv[2];
+
+    printf("Number of argument is argc: %d\n", numberOfArgument);
+    printf("1st argument is name of program: %s\n", arg1);
+    printf("2nd argument is: %s\n", arg2);
+    printf("3rd argument is: %s\n", arg3);
+    
+    
 	return 0;
 }
