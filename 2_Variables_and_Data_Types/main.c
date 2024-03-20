@@ -52,9 +52,10 @@ void data_specifiers() {
     _Bool d = 1;
     bool myBoolean = false;
 
-    printf("integer %i\n", a);
-    printf("float %f\n", b);
-    printf("double %e\n", c);
+    // önüne yazdığımız sayı kaç karkter yer kaplayacağı anlamın geliyor 5 karakterlik yer kaplayacak mesela
+    printf("integer %5i\n", a);
+    printf("float %2f\n", b);
+    printf("double %5e\n", c);
     printf("char %c\n", myChar);
     printf("_Bool %i\n", d);
     printf("bool %i\n", myBoolean);
@@ -77,10 +78,6 @@ void area_perimeter_rect(double w, double h) {
     printf("Perimeter is : %f\n", perimeter);
     printf("Area is: %f\n", area);
    
-}
-
-void argument_ex() {
-
 }
 
 int main(int argc, char *argv[])

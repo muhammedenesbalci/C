@@ -1,5 +1,13 @@
 # Variables and Data Types
 
+## Content
+- Primitive data types. Such as, int, float, char etc.
+- Enum
+- Escape characters
+- Format Specifiers. Such as, %d, %u.
+
+## Informations
+
 ## Enum
 - Enum is a data type used to define a set of named integer constants. It provides a way to create a group of named integer constants, making the code more readable and maintainable. The syntax for declaring an enum is as follows
     ```
