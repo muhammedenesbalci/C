@@ -14,7 +14,7 @@
     gcc -c program.c //this command's output is a object file
 
     # Link object file(s) and create executable
-    gcc -o program program.o //this command generate executable file
+    gcc program.o -o program  //this command generate executable file
 
     # Run the executable
     ./program

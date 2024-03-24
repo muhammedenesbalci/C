@@ -1,0 +1,7 @@
+# Macros
+- In C, a macro is a piece of code in a program that is replaced by the value of the macro. Macro is defined by #define directive. Whenever a macro name is encountered by the compiler, it replaces the name with the definition of the macro. Macro definitions need not be terminated by a semi-colon(;).
+- **Object-Like Macros**: An object-like macro is a simple identifier that will be replaced by a code fragment. It is called object-like because it looks like an object in code that uses it. It is popularly used to replace a symbolic name with a numerical/variable represented as a constant.
+- **Chain Macros**: Macros inside macros are termed chain macros. In chain macros first of all parent macro is expanded then the child macro is expanded.
+- **Multi-Line Macros**: An object-like macro could have a multi-line. So to create a multi-line macro you have to use backslash-newline. 
+- **Function-Like Macros**: These macros are the same as a function call. It replaces the entire code instead of a function name. Pair of parentheses immediately after the macro name is necessary. If we put a space between the macro name and the parentheses in the macro definition, then the macro will not work. 
+A function-like macro is only lengthened if and only if its name appears with a pair of parentheses after it. If we don’t do this, the function pointer will get the address of the real function and lead to a syntax error.
