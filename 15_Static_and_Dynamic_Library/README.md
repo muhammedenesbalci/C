@@ -67,3 +67,8 @@ static_linking.a: Oluşturulacak arşiv dosyasının adıdır. Burada static_lin
 
 - char *dlerror(void): En son oluşan dinamik bağlama hatasının bir açıklamasını döndürür.
 - Bu kütüphane bu so dosyasının olmadığı yerdede çalışmaz
+
+## Important Informations
+- normal herhangi bir flag kullanmadan yaptığımız buildler dynmaic builddir. incldue ettiğimiz so dosyaları sistemde bulunmaktadır. Bu sistem dosyaları için dlmopen gibi komutlar kullanmaya gerek yoktur.
+- kendi kütüphanelerimiz so veya .a değil çünkü zaten olduğumuz directory de header ve source file ları var. Her zaman .a veya .so üretmek zounda değliz bunları kaynak kodunu paylaşmka istemediğimiz zaman oluşturuyoruz
+- çalıştırılabilir dosyayı elde ettiğinde ldd my_prog yaaprak linkenecek so dosyalarını görebilrsin.

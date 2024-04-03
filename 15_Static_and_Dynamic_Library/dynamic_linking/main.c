@@ -1,7 +1,7 @@
 // main.c
 #include <stdio.h>
 #include <dlfcn.h>
-
+#include "dynamic_linking.h"
 int main() {
     // Dinamik kütüphane yükleniyor
     void *lib_handle = dlopen("./dynamic_linking.so", RTLD_LAZY);

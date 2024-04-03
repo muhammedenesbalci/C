@@ -93,7 +93,7 @@
 
 - Dosya İşaretçileri: Açılan dosyalar ve dosyalarla ilgili işaretçiler (File pointers), iş parçacıkları arasında paylaşılır. Bir iş parçacığı tarafından açılan bir dosya, diğer iş parçacıkları tarafından okunabilir veya yazılabilir.
 
-- Paylaşılan Bellek Alanları: İş parçacıkları arasında özellikle paylaşılan bellek alanları oluşturulabilir. Bu alanlar genellikle pthread kütüphanesindeki senkronizasyon araçları ile birlikte kullanılır ve iş parçacıkları arasında güvenli bir şekilde veri paylaşımı sağlar.
+- Paylaşılan Bellek Alanları: İş parçacıkları arasında özellikle paylaşılan bellek alanları oluşturulabilir. Bu alanlar genellikle pthread kütüphanesindeki senkronizasyon araçları ile birlikte kullanılır ve iş parçacıkları arasında güvenli bir şekilde veri paylaşımı sağlar.(mutex)
 
 - Ancak, iş parçacıkları arasında paylaşılan bellek alanlarının kullanımı dikkatle ele alınmalıdır çünkü aynı bellek alanına aynı anda birden fazla iş parçacığı erişebilir ve bu durum yarış koşullarına ve diğer senkronizasyon sorunlarına neden olabilir. Bu nedenle, paylaşılan bellek alanlarını kullanırken uygun senkronizasyon mekanizmaları (örneğin, kilitleme mekanizmaları) kullanılmalıdır.
 
@@ -103,8 +103,30 @@
 
 # Informations
 - mutex, çoklu iş parçacıklı programlarda senkronizasyonu sağlamak için kullanılan bir kilit mekanizmasıdır. "Mutex" terimi, "mutual exclusion"ın kısaltmasıdır. Shared memory de kullanılır.
-- Mutexler, belirli bir kritik bölgeye yalnızca bir iş parçacığının erişmesine izin vererek yarış koşullarını ve senkronizasyon sorunlarını önlerler. Özellikle paylaşılan kaynaklara erişimde kullanılırlar.
+- Mutexler, belirli bir kritik bölgeye yalnızca bir iş parçacığının erişmesine izin vererek yarış koşullarını ve senkronizasyon sorunlarını önlerler. Özellikle paylaşılan kaynaklara erişimde kullanılırlar. yani bütün threadlerin erişebilleceği bölgeye mutex kullandığımızda sadece o thread erişebilir diğerleri erişemez
 - Bir mutex, genellikle iki ana işleve sahiptir:
     - lock(): Bu işlev, bir iş parçacığının kilitlenmiş bir mutex'i kilitlemesini sağlar. Eğer mutex zaten kilitlenmişse, iş parçacığı kilit serbest bırakılana kadar bekler.
     - unlock(): Bu işlev, bir iş parçacığının kilitlenmiş bir mutex'i serbest bırakmasını sağlar. Eğer bir iş parçacığı kilitlenmiş mutex'i serbest bırakmazsa, diğer iş parçacıkları bu mutex'e erişemeyebilir.
 
+- Evet, mutex (Mutex kısaltması) bir tür senkronizasyon mekanizmasıdır ve genellikle paylaşılan bellek gibi birden fazla iş parçacığı tarafından erişilen ortamlarda kullanılır. Mutex, paylaşılan belleğe erişimi korumak için kullanılır ve aynı anda yalnızca bir iş parçacığının o bölgeye erişmesine izin verir. Bu şekilde, veri yarışı durumlarını (race conditions) önler ve veri bütünlüğünü sağlar.
+
+- Bir mutex kullanarak, bir iş parçacığı belirli bir kritik bölgeye (veya kritik kaynağa) erişmeden önce mutex kilidini alır. Eğer bir başka iş parçacığı o bölgeye erişmeye çalışırsa, bu iş parçacığı o noktada bir müddet beklemek zorunda kalır. İlk iş parçacığı işini bitirip mutex kilidini serbest bıraktığında, diğer iş parçacığı mutex kilidini alır ve işini yapmaya devam eder.
+
+- Bu sayede, mutex kullanarak paylaşılan belleğe erişimi senkronize ederiz ve veri yarışı durumlarından kaynaklanan hataları önleriz. Ancak, mutex kullanmak beraberinde bazı maliyetler getirir; özellikle, iş parçacıklarının birbirlerini beklemek zorunda kalması durumunda performans düşebilir. Bu yüzden, mutex kullanırken dikkatli olunmalı ve mutex kilidi olabildiğince kısa sürelerle tutulmalıdır.
+
+- mutex tanımladığımız zaman bütün thradlerin ulaşabileceği bölgeye sadece o anda lock lanan mutex ulaşabilir diğer threadler bekler ve o alana ulaşamaz.
+
+## Concurrency
+- Genel olarak, bir sistemde birden fazla işlem veya görevin aynı anda yürütülmesi yeteneğini ifade eder. Bu işlemler aynı anda başlatılabilir, çalışabilir veya tamamlanabilir, ancak gerçek zamanlı eşzamanlılık olması gerekmez.
+
+- Concurrency, özellikle çoklu işlemci sistemlerinde veya modern işletim sistemlerinde önemlidir. Çünkü birden fazla işlemci varsa, her bir işlemci ayrı görevleri aynı anda işleyebilir, bu da daha yüksek performans ve sistem verimliliği sağlar.
+
+- Concurrency'i gerçekleştirmenin farklı yolları vardır, bunlar arasında paralel işleme, çoklu iş parçacığı (threading), asenkron programlama ve olay tabanlı programlama gibi teknikler bulunmaktadır. Bu teknikler, farklı senaryolara ve gereksinimlere göre kullanılabilir ve programcılara sistemlerinde aynı anda birden fazla görevi etkin bir şekilde yönetme esnekliği sağlar.
+- aslında multithreading den bahsediyor
+
+## Resources
+- https://www.geeksforgeeks.org/operating-systems/?ref=lbp
+- https://www.geeksforgeeks.org/thread-in-operating-system/
+- https://www.geeksforgeeks.org/threads-and-its-types-in-operating-system/?ref=lbp
+- https://www.geeksforgeeks.org/multithreading-in-c/
+- https://www.geeksforgeeks.org/multithreading-in-operating-system/?ref=lbp
