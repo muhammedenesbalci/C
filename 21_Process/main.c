@@ -31,7 +31,7 @@ int second_example() {
         fprintf(stderr, "Fork failed.\n");
         return 1;
     } else if (pid == 0) { // Çocuk süreç
-    printf("Child process deyiz getpid dersen mantıken child process in PID ni alırsın\n");
+        printf("Child process deyiz getpid dersen mantıken child process in PID ni alırsın\n");
         printf("Bu child process. PID: %d\n", getpid());
 
         printf("child process pid değerini 0 olarak görür\n");
@@ -40,7 +40,6 @@ int second_example() {
         printf("Parent Process\n");
         printf("Bu ebeveyn süreçtir. PID: %d, Çocuk PID: %d\n", getpid(), pid);
     }
-
 }
 
 int third_example() {
@@ -100,10 +99,24 @@ void wait_example() {
     }
 }
 void wait_example_2() {
-    if (fork()== 0)
+    if (fork()== 0){
         printf("HC: hello from child\n");
-    else
-    {
+        exit(0);
+    }
+    else {
+        printf("HP: hello from parent\n");
+        wait(NULL);
+        printf("CT: child has terminated\n");
+    }
+ 
+    printf("Bye\n");
+}
+
+void wait_example_2_1() {
+    if (fork()== 0){
+        printf("HC: hello from child\n");
+    }
+    else {
         printf("HP: hello from parent\n");
         wait(NULL);
         printf("CT: child has terminated\n");
@@ -118,12 +131,19 @@ void wait_example_3() {
     // This status 1 is reported by WEXITSTATUS
     if (fork() == 0)
         exit(1);
-    else
+    else {
         wait(&stat);
-    if (WIFEXITED(stat))
+        printf("stat: %d", stat);
+        printf("stat: %p", &stat);
+    }
+    if (WIFEXITED(stat)) {
         printf("Exit status: %d\n", WEXITSTATUS(stat));
-    else if (WIFSIGNALED(stat))
+        printf("stat: %d", stat);
+        printf("stat: %p", &stat);
+    }
+    else if (WIFSIGNALED(stat)) {
         psignal(WTERMSIG(stat), "Exit signal");
+    }
 }
 
 void wait_example_4() {
@@ -148,6 +168,7 @@ void wait_example_4() {
                    cpid, WEXITSTATUS(stat));
     }
 }
+
 //ctrl c
 void handle_sigint(int sig) 
 { 
@@ -182,13 +203,17 @@ int main() {
     //exec example ###################################################
     exec_example();
     printf("Mevcut program devam ediyor. PID: %d\n", getpid());
+    printf("deger giriniz: ");
     int a = 0;
     scanf("%d", &a);
     */
 
-   //wait_example();
-   //wait_example_4();
-   //signals_example();
+    //wait_example();
+    //wait_example_2();
+    //wait_example_2_1();
+    //wait_example_3();
+    wait_example_4();
+    //signals_example();
 
     return 0;
 }

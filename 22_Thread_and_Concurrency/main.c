@@ -22,7 +22,7 @@ void* printNumbers(void* data) {
     for (i = 0; i < limit; i++) {
         printf("thread id: %ld ||i: %d\n", thread_id, i);
     }
-   pthread_exit(NULL); // Thread'in sonlandığını belirtir. return değerimiz olsaydı bunu yazmaamıza gerek kalmazdı
+   pthread_exit(NULL); // Thread'in sonlandığını belirtir. 
 }
 
 void parellel_thread_example_1() {
@@ -36,7 +36,7 @@ void parellel_thread_example_1() {
     thread_data_2.limit = 10;
     pthread_create(&thread2, NULL, printNumbers, (void*)&thread_data_2);
 
-    thread_data_1.thread_id = thread1; //Createw edip id leri a<labnilmek içint anımladıktan sonra sete diyoruz
+    thread_data_1.thread_id = thread1; //Create edip id leri alabilmek için tanımladıktan sonra set ediyoruz
     thread_data_2.thread_id = thread2;
 
     // Main thread, diğer iki thread'in bitmesini bekler.

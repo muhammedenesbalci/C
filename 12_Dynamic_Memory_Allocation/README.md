@@ -46,3 +46,27 @@ Heap ve stack, bilgisayar belleğinde verilerin depolandığı iki temel alanı 
             return 0;
         }
         ```
+
+- Heap ve stack, bilgisayar biliminde bellek yönetimi konseptleri olarak önemli rol oynayan terimlerdir. Bu terimler, bilgisayarın belleğinde veri depolama ve erişme yöntemlerini ifade ederler. İşte heap ve stack'in tanımları ve farkları:
+
+- Stack (Yığın)
+    - Stack, bellekteki bir bölgeyi ifade eder ve genellikle LIFO (Last In, First Out - Son giren, ilk çıkan) prensibiyle çalışır. Program yürütülürken, her çağrılan fonksiyon için stack üzerinde bir "çalışma çerçevesi" (activation record veya frame) oluşturulur. Bu çerçeve, fonksiyonun çalışması için gerekli olan yerel değişkenler, fonksiyon argümanları, dönüş adresi ve diğer bilgileri içerir. Bir fonksiyon çağrıldığında, stack üzerine yeni bir çerçeve eklenir (push); fonksiyon tamamlandığında ise çerçeve kaldırılır (pop).
+
+- Özellikleri:
+
+    - Stack boyutu genellikle sınırlıdır ve sabittir. Bu nedenle, stack taşması (stack overflow) durumları olabilir.
+    - Yerel değişkenler ve fonksiyon çağrıları stack üzerinde yönetilir.
+    - Hızlı erişim sağlar, çünkü bellek üzerinde sıralı olarak yer alır.
+    - Derleme zamanında belirlenen sabit bir boyuta sahiptir.
+- Heap
+    - Heap, dinamik bellek yönetimi için kullanılan bir bellek bölgesidir. Heap, program çalışma zamanında kullanıcı talebine göre büyütülebilir veya küçültülebilir. Programın çalışması sırasında ihtiyaç duyulan dinamik bellek (örneğin, dinamik olarak oluşturulan nesneler, diziler veya veri yapıları) heap üzerinde tahsis edilir ve serbest bırakılır. Bellek tahsisi için genellikle malloc, calloc gibi fonksiyonlar kullanılır ve bellek serbest bırakma için free fonksiyonu kullanılır.
+
+- Özellikleri:
+
+    - Heap boyutu, program çalışma zamanında değişebilir ve genellikle daha büyük ve esnek bir bellek alanı sağlar.
+    - Dinamik bellek tahsisini ve serbest bırakmayı sağlar.
+    - Veriler heap üzerinde rastgele yerleştirilir ve bellek erişimi stack'e göre daha yavaş olabilir.
+    - Bellek yönetimi, programcının sorumluluğundadır ve yanlış kullanım bellek sızıntılarına veya bellek hatalarına yol açabilir.
+- Özet
+- Stack: Program yürütülürken yerel değişkenler ve fonksiyon çağrıları için kullanılır. Sabit boyutlu ve sıralı bir bellek alanıdır.
+- Heap: Dinamik bellek tahsisi için kullanılır. Boyutu program çalışma zamanında değişebilir ve genellikle daha esnek bir bellek alanı sağlar.
