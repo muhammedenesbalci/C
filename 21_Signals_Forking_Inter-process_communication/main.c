@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+#include<signal.h>
 
 int first_example() {
     pid_t pid;
@@ -83,6 +85,84 @@ void exec_example() {
     }
 }
 
+void wait_example() {
+    pid_t pid;
+    pid_t pid_terminated;
+    pid = fork();
+    if (pid == 0){
+        printf("Child Process: %d\n", pid);
+        exit(0);           /* terminate child */
+    } else {
+        pid_terminated = wait(NULL); /* reaping parent */
+        printf("Parent pid = %d\n", getpid());
+        printf("Child pid = %d\n", pid);
+        printf("termianted pid = %d\n", pid_terminated);
+    }
+}
+void wait_example_2() {
+    if (fork()== 0)
+        printf("HC: hello from child\n");
+    else
+    {
+        printf("HP: hello from parent\n");
+        wait(NULL);
+        printf("CT: child has terminated\n");
+    }
+ 
+    printf("Bye\n");
+}
+
+void wait_example_3() {
+    int stat;
+ 
+    // This status 1 is reported by WEXITSTATUS
+    if (fork() == 0)
+        exit(1);
+    else
+        wait(&stat);
+    if (WIFEXITED(stat))
+        printf("Exit status: %d\n", WEXITSTATUS(stat));
+    else if (WIFSIGNALED(stat))
+        psignal(WTERMSIG(stat), "Exit signal");
+}
+
+void wait_example_4() {
+    int i, stat;
+    pid_t pid[5];
+    for (i=0; i<5; i++)
+    {
+        if ((pid[i] = fork()) == 0)
+        {
+            sleep(10);
+            exit(100 + i);
+        }
+    }
+ 
+    // Using waitpid() and printing exit status
+    // of children.
+    for (i=0; i<5; i++)
+    {
+        pid_t cpid = waitpid(pid[i], &stat, 0);
+        if (WIFEXITED(stat))
+            printf("Child %d terminated with status: %d\n",
+                   cpid, WEXITSTATUS(stat));
+    }
+}
+//ctrl c
+void handle_sigint(int sig) 
+{ 
+    printf("Caught signal %d\n", sig); 
+}
+
+void signals_example() {
+    signal(SIGINT, handle_sigint); 
+    while (1) 
+    { 
+        //printf("hello world\n"); 
+        sleep(1); 
+    } 
+}
+
 int main() {
     //Sadece bir fonskyionu ve printi açık bırakarak yaz yoksa karışır
     //printf("\n First Example #################################\n");
@@ -98,11 +178,17 @@ int main() {
     //fourth_example();
 
     /*
+    printf("\n exec example #################################\n");
     //exec example ###################################################
     exec_example();
     printf("Mevcut program devam ediyor. PID: %d\n", getpid());
     int a = 0;
     scanf("%d", &a);
     */
+
+   //wait_example();
+   //wait_example_4();
+   //signals_example();
+
     return 0;
 }

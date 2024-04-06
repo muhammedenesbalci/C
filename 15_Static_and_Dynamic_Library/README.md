@@ -13,13 +13,10 @@
     Paylaşılan nesneler, çalışma zamanında dinamik olarak yüklenen ve paylaşılan bir kütüphane dosyasıdır.
     Bu kütüphaneler, programların çalışma sürecinde dinamik olarak yüklenebilir, yani program çalıştırıldığında bellekte yüklenir.
     Paylaşılan nesneler, birden fazla program tarafından paylaşılabilir ve aynı fiziksel bellek bölgesine yüklenirler, bu nedenle sistemde kaynakların daha etkin kullanılmasını sağlarlar.
-    .so (shared object) uzantısı genellikle paylaşılan nesneleri gösterir.
+    .so (shared object) uzantısı genellikle paylaşılan nesneleri gösterir windows da dll.
 
 - Kullanım durumlarına gelince, statik kütüphaneler, programlarınızın 
     bağımlılıklarını derleme zamanında belirtmek için kullanılır. Programın bağımlılıkları, derleme sırasında tam olarak belirtilir ve derleme sonucunda program, tüm bağımlılıkları içeren tek bir dosya olarak oluşturulur. Paylaşılan nesneler ise programlarınızın çalışma zamanında bağımlılıklarını yüklemek için kullanılır. Bu, daha esnek ve daha hafif bir yaklaşımdır, çünkü bağımlılıklar programın çalışma zamanında yüklenir ve aynı bağımlılıklar birden çok program tarafından paylaşılabilir.
-
-- https://www.geeksforgeeks.org/static-and-dynamic-linking-in-operating-systems/
-- https://www.geeksforgeeks.org/static-vs-dynamic-libraries/
 
 ## Static Linking Commands
 ```bash
@@ -69,6 +66,12 @@ static_linking.a: Oluşturulacak arşiv dosyasının adıdır. Burada static_lin
 - Bu kütüphane bu so dosyasının olmadığı yerdede çalışmaz
 
 ## Important Informations
-- normal herhangi bir flag kullanmadan yaptığımız buildler dynmaic builddir. incldue ettiğimiz so dosyaları sistemde bulunmaktadır. Bu sistem dosyaları için dlmopen gibi komutlar kullanmaya gerek yoktur.
+- normal herhangi bir flag kullanmadan yaptığımız buildler dynmaic builddir. Include ettiğimiz so dosyaları sistemde bulunmaktadır. Bu sistem dosyaları için dlmopen gibi komutlar kullanmaya gerek yoktur.
+
 - kendi kütüphanelerimiz so veya .a değil çünkü zaten olduğumuz directory de header ve source file ları var. Her zaman .a veya .so üretmek zounda değliz bunları kaynak kodunu paylaşmka istemediğimiz zaman oluşturuyoruz
+
 - çalıştırılabilir dosyayı elde ettiğinde ldd my_prog yaaprak linkenecek so dosyalarını görebilrsin.
+
+## Resources
+- https://www.geeksforgeeks.org/static-and-dynamic-linking-in-operating-systems/
+- https://www.geeksforgeeks.org/static-vs-dynamic-libraries/

@@ -132,6 +132,416 @@ L3  L3  L3  L3  // There will be 4 child processes
 - exec_example_program adında klasik sıradan bi program olyuşturdum.
 - iki program da çalışmaya devam ediyor dikkat et sadece child process yeni program çalıştıktan sonra diğerine geçiyor.
 
-- https://www.geeksforgeeks.org/fork-system-call/
-- https://www.geeksforgeeks.org/signals-c-language/
-- https://www.geeksforgeeks.org/wait-system-call-c/
+## Wait
+- A call to wait() blocks the calling process until one of its child processes exits or a signal is received. After child process terminates, parent continues its execution after wait system call instruction. 
+Child process may terminate due to any of these: 
+
+    - It calls exit();
+    - It returns (an int) from main.
+    - It receives a signal (from the OS or another process) whose default action is to terminate.
+
+- If any process has more than one child processes, then after calling wait(), parent process has to be in wait state if no child terminates. 
+- If only one child process is terminated, then return a wait() returns process ID of the terminated child process. 
+- If more than one child processes are terminated than wait() reap any arbitrarily child and return a process ID of that child process. 
+- When wait() returns they also define exit status (which tells our, a process why terminated) via pointer, If status are not NULL.
+- If any process has no child process then wait() returns immediately “-1”.
+
+
+- Bu mekanizma, özellikle ebeveyn (parent) ve çocuk (child) süreçler arasındaki senkronizasyon için önemlidir. Örneğin, bir ebeveyn süreci, bir çocuk sürecin sonlanmasını bekleyebilir ve böylece çocuk sürecin kaynaklarının düzgün bir şekilde temizlenmesini ve çıkış durumunun alınmasını sağlayabilir. Bu, özellikle çocuk süreçlerin paralel olarak çalıştırıldığı durumlarda ve kaynakların yönetimi, süreçler arası iletişim veya veri bütünlüğünün korunması gibi durumlar için önemlidir.
+- C dilinde bu tür bir beklemeyi gerçekleştirmek için kullanılan sistem çağrılarından biri wait() fonksiyonudur. wait() fonksiyonu, ebeveyn sürecin, bir veya daha fazla çocuk sürecin sonlanmasını beklemesini sağlar. Bu fonksiyon, çocuk sürecin çıkış kodunu da alabilir, böylece ebeveyn sürec çocuğun başarıyla mı yoksa bir hata mı nedeniyle sonlandığını belirleyebilir.
+- parelel çalışmayı değilde sırayla çalışmayı sağlıyor.
+
+## Child status information
+- Status information about the child reported by wait is more than just the exit status of the child, it also includes.
+    - normal/abnormal termination
+    - termination cause
+    - exit status
+- For find information about status, we use WIF….macros
+    - WIFEXITED(status): child exited normally 
+        - WEXITSTATUS(status): return code when child exits
+    - WIFSIGNALED(status): child exited because a signal was not caught 
+        - WTERMSIG(status): gives the number of the terminating signal
+    - WIFSTOPPED(status): child is stopped 
+        - WSTOPSIG(status): gives the number of the stop signal
+
+    ```C
+    /*if we want to prints information about a signal */
+    void psignal(unsigned sig, const char *s);
+    ```
+## More than one child process
+- We know if more than one child processes are terminated, then wait() reaps any arbitrarily child process but if we want to reap any specific child process, we use waitpid() function.
+- belli bir process i beklemek istiyorsan bunu kulanırız.
+- ```C
+    pid_t waitpid (child_pid, &status, options);
+    ```
+- Options Parameter 
+    - If 0 means no option parent has to wait for terminates child.
+    - If WNOHANG means parent does not wait if child does not terminate just check and return waitpid().(not block parent process).
+    - If child_pid is -1 then means any arbitrarily child, here waitpid() work same as wait() work.
+- Return value of waitpid()
+    - pid of child, if child has exited.
+    - 0, if using WNOHANG and child hasn’t exited.
+
+# Signals
+- A signal is a software generated interrupt that is sent to a process by the OS because of when user press ctrl-c or another process tell something to this process.
+There are fix set of signals that can be sent to a process. signal are identified by integers.
+Signal number have symbolic names. For example SIGCHLD is number of the signal sent to the parent process when child terminates.
+-   ```C
+    #define SIGHUP  1   /* Hangup the process */ 
+    #define SIGINT  2   /* Interrupt the process */ 
+    #define SIGQUIT 3   /* Quit the process */ 
+    #define SIGILL  4   /* Illegal instruction. */ 
+    #define SIGTRAP 5   /* Trace trap. */ 
+    #define SIGABRT 6   /* Abort. */
+    ```
+## OS Structures for Signals
+- For each process, the operating system maintains 2 integers with the bits corresponding to a signal numbers.
+- The two integers keep track of: pending signals and blocked signals
+- With 32 bit integers, up to 32 different signals can be represented.
+
+## Default Signal Handlers
+- There are several default signal handler routines. Each signal is associated with one of these default handler routine. The different default handler routines typically have one of the following actions:
+- Ign: Ignore the signal; i.e., do nothing, just return
+- Term: terminate the process
+- Cont: unblock a stopped process
+- Stop: block the process
+
+## User Defined Signal Handlers
+- A process can replace the default signal handler for almost all signals (but not SIGKILL) by its user’s own handler function.
+A signal handler function can have any name, but must have return type void and have one int parameter.
+- Example: you might choose the name sigchld_handler for a signal handler for the SIGCHLD signal (termination of a child process). Then the declaration would be:
+    -   ```C
+        void sigchld_handler(int sig);
+        ```
+    - When a signal handler executes, the parameter passed to it is the number of the signal. A programmer can use the same signal handler function to handle several signals. In this case the handler would need to check the parameter to see which signal was sent. On the other hand, if a signal handler function only handles one signal, it isn’t necessary to bother examining the parameter since it will always be that signal number.
+
+    - ```C    
+        // CPP program to illustrate 
+        // User-defined Signal Handler 
+        #include<stdio.h> 
+        #include<signal.h> 
+        
+        // Handler for SIGINT, caused by 
+        // Ctrl-C at keyboard 
+        void handle_sigint(int sig) 
+        { 
+            printf("Caught signal %d\n", sig); 
+        } 
+        
+        int main() 
+        { 
+            signal(SIGINT, handle_sigint); 
+            while (1) ; 
+            return 0; 
+        } 
+      ```
+
+## Sending signals via kill()
+-   int kill(pid_t pid, int signal);
+    pid: id of destination process
+    signal: the type of signal to send
+    Return value: 0 if signal was sent successfully
+```C
+    pid_t iPid = getpid(); /* Process gets its id.*/
+    kill(iPid, SIGINT);  /* Process sends itself a  SIGINT signal   
+    (commits suicide?)(because of SIGINT 
+    signal default handler is terminate the process) */
+```
+
+# Communication between process
+- İşletim sistemlerinde süreçler (processler) arasında veri aktarımı ve haberleşme, süreçlerin birbirlerinin adres alanlarına doğrudan erişememeleri gerçeğinden dolayı özel mekanizmalar aracılığıyla gerçekleşir. Bu mekanizmalar genellikle İşletim Sistemi (İS) tarafından sağlanır. Süreçler arası haberleşme (Interprocess Communication - IPC) mekanizmaları arasında aşağıdakiler bulunur:
+    - Dosya Paylaşımı (File Sharing): En basit IPC yöntemlerinden biridir. İki veya daha fazla süreç, veri alışverişi yapmak için dosya sistemi üzerindeki dosyaları kullanır. Bu yöntemin dezavantajı, süreçlerin dosya üzerindeki değişiklikleri manuel olarak senkronize etmeleri gerektiğidir.
+    - Sinyaller (Signals): Bir süreçten diğerine veya işletim sisteminden bir sürece bir olayın gerçekleştiğini bildiren asenkron bir haberleşme şeklidir. Sinyaller, sınırlı bir bilgi taşır ve genellikle yalnızca bir durumun veya olayın gerçekleştiğini bildirmek için kullanılır.
+    - Boru Hatları (Pipes): Standart giriş ve çıkışı kullanarak iki süreç arasında bir veri akışı sağlar. Anonim boru hatları (anonymous pipes) yalnızca ilişkilendirilmiş süreçler arasında kullanılabilirken, adlandırılmış boru hatları (named pipes) veya FIFO'lar farklı süreçler arasında iletişim kurmak için kullanılabilir.
+    - Mesaj Kuyrukları (Message Queues): Süreçler arası mesajları bir kuyrukta saklar. Her mesaj, bir tür ve belirli bir boyuta sahiptir. Mesaj kuyrukları, karmaşık veri yapılarını aktarmak için uygun bir yol sağlar.
+    - Paylaşımlı Bellek (Shared Memory): İki veya daha fazla süreçin aynı bellek segmentini paylaşmasına olanak tanır. Bu yöntem, süreçler arasında büyük miktarda verinin hızlı bir şekilde aktarılması gerektiğinde etkilidir. Ancak, süreçlerin bu ortak kaynağa erişimlerini senkronize etmeleri gerekir, bu genellikle semaforlar veya kilitler kullanılarak yapılır.
+    - Semaforlar (Semaphores): Semaforlar doğrudan veri aktarımı için kullanılmasa da, paylaşılan kaynaklara erişimde süreçler arasındaki senkronizasyonu sağlar. Semaforlar, bir kaynağın aynı anda yalnızca belirli sayıda süreç tarafından kullanılmasını garantiler.
+    - Soketler (Sockets): Ağ üzerinden çalışan süreçler arasında çift yönlü iletişim kurulmasını sağlar. Soketler, farklı bilgisayarlardaki süreçlerin birbiriyle haberleşmesine olanak tanır ve genellikle ağ tabanlı uygulamalarda kullanılır.
+
+## Inter Process Communication (IPC)
+
+## Türkçe
+- communication_example.c dosyasını incele
+
+- İşletim sistemlerinde süreçler (processler) arasında veri aktarımı ve haberleşme, süreçlerin birbirlerinin adres alanlarına doğrudan erişememeleri gerçeğinden dolayı özel mekanizmalar aracılığıyla gerçekleşir. Bu mekanizmalar genellikle İşletim Sistemi (İS) tarafından sağlanır. Süreçler arası haberleşme (Interprocess Communication - IPC) mekanizmaları arasında aşağıdakiler bulunur:
+
+    - Dosya Paylaşımı (File Sharing): En basit IPC yöntemlerinden biridir. İki veya daha fazla süreç, veri alışverişi yapmak için dosya sistemi üzerindeki dosyaları kullanır. Bu yöntemin dezavantajı, süreçlerin dosya üzerindeki değişiklikleri manuel olarak senkronize etmeleri gerektiğidir.
+
+    - Sinyaller (Signals): Bir süreçten diğerine veya işletim sisteminden bir sürece bir olayın gerçekleştiğini bildiren asenkron bir haberleşme şeklidir. Sinyaller, sınırlı bir bilgi taşır ve genellikle yalnızca bir durumun veya olayın gerçekleştiğini bildirmek için kullanılır.
+
+    - Boru Hatları (Pipes): Standart giriş ve çıkışı kullanarak iki süreç arasında bir veri akışı sağlar. Anonim boru hatları (anonymous pipes) yalnızca ilişkilendirilmiş süreçler arasında kullanılabilirken, adlandırılmış boru hatları (named pipes) veya FIFO'lar farklı süreçler arasında iletişim kurmak için kullanılabilir.
+
+    - Mesaj Kuyrukları (Message Queues): Süreçler arası mesajları bir kuyrukta saklar. Her mesaj, bir tür ve belirli bir boyuta sahiptir. Mesaj kuyrukları, karmaşık veri yapılarını aktarmak için uygun bir yol sağlar.
+
+    - Paylaşımlı Bellek (Shared Memory): İki veya daha fazla süreçin aynı bellek segmentini paylaşmasına olanak tanır. Bu yöntem, süreçler arasında büyük miktarda verinin hızlı bir şekilde aktarılması gerektiğinde etkilidir. Ancak, süreçlerin bu ortak kaynağa erişimlerini senkronize etmeleri gerekir, bu genellikle semaforlar veya kilitler kullanılarak yapılır.
+
+    - Semaforlar (Semaphores): Semaforlar doğrudan veri aktarımı için kullanılmasa da, paylaşılan kaynaklara erişimde süreçler arasındaki senkronizasyonu sağlar. Semaforlar, bir kaynağın aynı anda yalnızca belirli sayıda süreç tarafından kullanılmasını garantiler.
+
+    - Soketler (Sockets): Ağ üzerinden çalışan süreçler arasında çift yönlü iletişim kurulmasını sağlar. Soketler, farklı bilgisayarlardaki süreçlerin birbiriyle haberleşmesine olanak tanır ve genellikle ağ tabanlı uygulamalarda kullanılır.
+
+    - Bu mekanizmaların her biri, farklı senaryolar için avantajlar ve dezavantajlar sunar. Seçim, uygulamanın gereksinimlerine, performans beklentilerine ve güvenlik ihtiyaçlarına bağlıdır.
+
+## Communication_shared_memory_1 example Explanation
+- #include direktifleri: Gerekli kütüphaneleri dahil eder.
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/types.h>
+#include <unistd.h>
+```
+- #define ile bir sembolik isim tanımlanır. Bu sembolik isim, paylaşılan bellek boyutunu belirtir.
+```C
+#define SHM_SIZE 1024
+```
+- ftok() fonksiyonuyla paylaşılan bellek için bir anahtar oluşturulur.
+```C
+key_t key = ftok("/tmp", 'A');
+```
+- shmget() fonksiyonuyla paylaşılan bellek segmenti oluşturulur. Bu fonksiyon, paylaşılan belleğin boyutunu ve erişim izinlerini belirler.
+```C
+int shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+```
+- shmat() fonksiyonuyla paylaşılan bellek segmenti sürecin adres alanına bağlanır.
+```C
+char *shmaddr = shmat(shmid, NULL, 0);
+```
+- fork() fonksiyonuyla yeni bir süreç oluşturulur. Bu süreç, asıl süreçten bir kopya oluşturur.
+```C
+pid_t pid = fork();
+```
+- Çocuk süreç, paylaşılan belleğe kendi mesajını yazar ve ekrana basar. strcpy() fonksiyonu, çocuk süreçten paylaşılan belleğe veriyi kopyalar.
+```C
+if (pid == 0) {
+    // Çocuk süreç
+    const char* message_child = "Bu veri çocuk süreçten geliyor!";
+    strcpy(shmaddr, message_child);
+    printf("Çocuk süreçten paylaşılan belleğe yazılan veri: %s\n", shmaddr);
+}
+```
+- Ebeveyn süreç, paylaşılan belleğe kendi mesajını yazar ve ekrana basar.
+```C
+else {
+    // Ebeveyn süreç
+    const char* message_parent = "Bu veri ebeveyn süreçten geliyor!";
+    strcpy(shmaddr, message_parent);
+    printf("Ebeveyn süreçten paylaşılan belleğe yazılan veri: %s\n", shmaddr);
+}
+```
+- Paylaşılan belleği serbest bırakmak için shmdt() fonksiyonu kullanılır. Bu fonksiyon, paylaşılan belleği sürecin adres alanından çıkarır.
+```C
+shmdt(shmaddr);
+```
+
+## Communication_shared_memory_2 example Explanation
+- #include direktifleri: Gerekli kütüphaneleri dahil eder.
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/types.h>
+#include <unistd.h>
+```
+- #define ile bir sembolik isim tanımlanır. Bu sembolik isim, paylaşılan bellek boyutunu belirtir.
+```C
+#define SHM_SIZE 1024
+```
+- ftok() fonksiyonuyla paylaşılan bellek için bir anahtar oluşturulur.
+```C
+key_t key = ftok("/tmp", 'A');
+```
+- shmget() fonksiyonuyla paylaşılan bellek segmenti oluşturulur. Bu fonksiyon, paylaşılan belleğin boyutunu ve erişim izinlerini belirler.
+```C
+int shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+```
+- shmat() fonksiyonuyla paylaşılan bellek segmenti sürecin adres alanına bağlanır.
+```C
+char *shmaddr = shmat(shmid, NULL, 0);
+```
+- fork() fonksiyonuyla yeni bir süreç oluşturulur. Bu süreç, asıl süreçten bir kopya oluşturur.
+```C
+pid_t pid = fork();
+```
+- Çocuk süreç, paylaşılan belleğe kendi mesajını yazar ve ekrana basar. strcpy() fonksiyonu, çocuk süreçten paylaşılan belleğe veriyi kopyalar.
+```C
+if (pid == 0) {
+    // Çocuk süreç
+    const char* message_child = "Bu veri çocuk süreçten geliyor!";
+    strcpy(shmaddr, message_child);
+    printf("Çocuk süreçten paylaşılan belleğe yazılan veri: %s\n", shmaddr);
+}
+```
+- Ebeveyn süreç, paylaşılan belleğe kendi mesajını yazar ve ekrana basar.
+```C
+else {
+    // Ebeveyn süreç
+    const char* message_parent = "Bu veri ebeveyn süreçten geliyor!";
+    strcpy(shmaddr, message_parent);
+    printf("Ebeveyn süreçten paylaşılan belleğe yazılan veri: %s\n", shmaddr);
+}
+```
+- Ebeveyn süreçten gelen veriyi çocuk süreçte yazdırmak için wait() fonksiyonu kullanılır. Yani ana process bekletilir.
+```C
+wait(NULL); // Çocuk sürecin tamamlanmasını bekle
+```
+- Çocuk süreçten gelen veriyi ekrana yazdırmak için shmaddr değişkeni kullanılır.
+```C
+printf("Çocuk süreçten gelen veri: %s\n", shmaddr);
+```
+- Paylaşılan belleği serbest bırakmak için shmdt() fonksiyonu kullanılır. Bu fonksiyon, paylaşılan belleği sürecin adres alanından çıkarır.
+```C
+shmdt(shmaddr);
+```
+
+## communication_message_queue example explanation
+- #include direktifleri: Gerekli kütüphaneleri dahil eder.
+```c
+Copy code
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define ile bir sembolik isim tanımlanır.
+```
+- Bu sembolik isim, mesajın maksimum boyutunu belirtir.
+```c
+#define MAX_SIZE 1024
+```
+
+- struct msg_buffer yapısı tanımlanır. Bu yapı, mesajın içeriğini ve türünü tutar.
+```c
+struct msg_buffer {
+    long msg_type;
+    char msg_text[MAX_SIZE];
+};
+```
+
+- ftok() fonksiyonuyla key oluşturulur.
+```c
+key_t key = ftok("/tmp", 'A');
+```
+- Message Queue oluşturulur. Bu fonksiyon, yeni bir Message Queue oluşturur veya mevcut bir Message Queue'nun kimlik numarasını alır.
+```c
+int msg_id = msgget(key, 0666 | IPC_CREAT);
+```
+
+- fork() fonksiyonuyla yeni bir süreç oluşturulur. Bu süreç, asıl süreçten bir kopya oluşturur.
+```c
+pid_t pid = fork();
+```
+
+- Çocuk süreç, kullanıcıdan bir mesaj alır ve Message Queue'ya gönderir.
+
+```c
+if (pid == 0) {
+    // Çocuk süreç
+    struct msg_buffer message;
+    message.msg_type = 1;
+
+    printf("Çocuk süreç: Lütfen bir mesaj girin: ");
+    fgets(message.msg_text, MAX_SIZE, stdin);
+
+    // Mesajı Message Queue'ya gönderme
+    msgsnd(msg_id, &message, sizeof(message), 0);
+}
+```
+- Ebeveyn süreç, Message Queue'dan mesajı alır ve ekrana yazdırır.
+
+```c
+else {
+    // Ebeveyn süreç
+    struct msg_buffer message;
+
+    // Mesajı Message Queue'dan alma
+    msgrcv(msg_id, &message, sizeof(message), 1, 0);
+
+    printf("Ebeveyn süreç: Alınan mesaj: %s", message.msg_text);
+}
+```
+
+- Message Queue silinir. Bu fonksiyon, Message Queue'yu siler ve belleği serbest bırakır.
+```c
+if (msgctl(msg_id, IPC_RMID, NULL) == -1) {
+    perror("msgctl");
+    exit(EXIT_FAILURE);
+}
+```
+- Bu örnekte, ebeveyn ve çocuk süreçler birbirini beklemiyorlar çünkü asenkron bir şekilde iletişim kuruyorlar. İki süreç arasındaki haberleşme Message Queue kullanılarak gerçekleştiriliyor. İşleyiş şu şekilde gerçekleşiyor:
+
+- Ana süreç, fork() fonksiyonu çağrısı ile iki süreç oluşturur: ebeveyn ve çocuk süreçleri.
+
+- Ebeveyn süreç, msgget() fonksiyonu ile bir Message Queue oluşturur veya var olan bir Message Queue'yu alır.
+
+- Ebeveyn süreç, çocuk sürecin oluşturulmasından sonra, çocuk sürece bir mesaj göndermek için msgsnd() fonksiyonunu kullanır. Bu işlem, ebeveyn sürecin engellenmeden devam etmesini sağlar.
+
+- Çocuk süreç, msgrcv() fonksiyonu ile Message Queue'dan bir mesaj alır. Bu işlem, çocuk sürecin engellenmeden devam etmesini sağlar.
+
+- Çocuk süreç, alınan mesajı ekrana yazdırır.
+
+- Ebeveyn süreç, mesajı gönderdikten sonra Message Queue'yu siler.
+
+- Bu şekilde, ebeveyn ve çocuk süreçler birbirini beklemeden çalışır. Message Queue, asenkron iletişimi sağlar ve süreçler arasında veri alışverişi yapılabilir. Bu nedenle, herhangi bir süreç diğerini beklemek zorunda kalmaz ve her iki süreç de bağımsız bir şekilde çalışabilir.
+
+# Socket Programing
+- Socket programming is a way of connecting two nodes on a network to communicate with each other. One socket(node) listens on a particular port at an IP, while the other socket reaches out to the other to form a connection. The server forms the listener socket while the client reaches out to the server.
+
+## Example Explanation
+### Client Code
+- int sock = 0;: Soket dosya tanımlayıcısı için değişken tanımı.
+- struct sockaddr_in serv_addr;: Sunucu adresi bilgilerini tutacak sockaddr_in yapısı tanımı.
+- char *message;: Kullanıcıdan alınacak mesajı tutacak karakter dizisi için işaretçi tanımı.
+- char buffer[1024] = {0};: Sunucudan alınacak cevabı tutacak karakter dizisi tanımı.
+- Soket oluşturma ve sunucu adresi yapılandırma:
+    - socket(AF_INET, SOCK_STREAM, 0): TCP iletişiminde kullanılan bir soket oluşturuluyor.
+    - inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr): Sunucu IP adresi 127.0.0.1 (localhost) olarak ayarlanıyor.
+- Sunucuya bağlanma:
+    - connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)): Belirtilen sunucuya soket üzerinden bağlantı kuruluyor.
+
+- Kullanıcıdan mesaj alma:
+    - scanf("%s", message): Kullanıcıdan bir dize alınıyor. Bu noktada message değişkeni işaretçi olduğu için bellek sızıntısı olabilir; çünkü message için hafıza ayrılmamış.
+
+- Sunucuya mesaj gönderme:
+    - send(sock, message, strlen(message), 0): Sunucuya kullanıcının girdiği mesaj gönderiliyor.
+
+- Sunucudan cevap alma:
+    - read(sock, buffer, 1024): Sunucudan gelen cevap buffer dizisine okunuyor.
+
+### Server Code
+- Değişken Tanımlamaları:
+
+    - server_fd: Sunucu soketi için dosya tanımlayıcısı.
+    - new_socket: Yeni bağlantı için dosya tanımlayıcısı.
+    - address: sockaddr_in türünden sunucu adresi bilgileri yapısı.
+    - addrlen: Adres yapısının boyutunu tutan değişken.
+    - buffer: İstemciden alınacak verileri tutacak karakter dizisi.
+    - message: İstemciye gönderilecek karşılama mesajı için dinamik bellek alanı.
+
+- Sunucu Soketi Oluşturma:
+    - socket(AF_INET, SOCK_STREAM, 0): TCP protokolü için bir soket oluşturulur. Oluşturulan soket dosya tanımlayıcısı server_fd değişkenine atanır.
+
+- Sunucu Adresini Yapılandırma:
+    - address.sin_family = AF_INET;: IPv4 adres ailesini belirtir.
+    - address.sin_addr.s_addr = INADDR_ANY;: Tüm ağ arabirimlerini dinlemek için IP adresini belirtir.
+    - address.sin_port = htons(PORT);: Bağlantı noktasını belirtir.
+
+- Soketi Belirtilen Port ile Bağlama:
+    - bind(server_fd, (struct sockaddr *)&address, sizeof(address)): Oluşturulan sunucu soketini belirtilen port ile bağlar.
+
+- Bağlantıları Dinlemeye Başlama:
+    - listen(server_fd, 3): Bağlantıları dinlemeye başlar. 3 burada eşzamanlı bağlantı kuyruğunun boyutunu belirtir.
+
+- Bağlantıyı Kabul Etme:
+    - new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)
+
+- İstemciden Veri Alma:
+    - read(new_socket, buffer, 1024): İstemciden gelen verileri buffer dizisine okur. 1024 maksimum okunacak bayt sayısını belirtir.
+
+- İstemciye Karşılama Mesajı Gönderme:    
+    - `send(new_socket, message, strlen(message), 0)`: İstemciye `message` dizisindeki mesajı gönderir. `strlen(message)` ile mesaj uzunluğu belirtilir.

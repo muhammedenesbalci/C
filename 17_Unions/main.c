@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 void basic_union() {
     union un {
         int member1;

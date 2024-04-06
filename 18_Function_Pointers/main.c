@@ -95,7 +95,7 @@ void function_pointer_as_argument() {
 //###########################################################################################
 //intermediate Example
 // açıklaması readme de var
-int compare (const void * a, const void * b) { 
+int compare (const void* a, const void* b) { 
     return ( *(int*)a - *(int*)b ); 
 } 
 
@@ -149,8 +149,11 @@ void intermediate_example_2() {
     int n = sizeof(arr)/sizeof(arr[0]); 
     int x = 90; 
     printf ("Returned index is %d \n", search(arr, n, &x, &compare_2)); 
+    x = 2;
     printf ("Returned index is %d \n", search(arr, n, &x, compare_2));
+    x = 5;
     printf ("Returned index is %d \n", search2(arr, n, &x, &compare_2));
+    x = 70;
     printf ("Returned index is %d \n", search2(arr, n, &x, compare_2));
 }
 
@@ -167,9 +170,6 @@ int main()
 
     printf("\narray_function_pointers #####################\n");
     array_function_pointers();
-
-    printf("\nfunction_pointer_as_argument #####################\n");
-    function_pointer_as_argument();
 
     printf("\nfunction_pointer_as_argument #####################\n");
     function_pointer_as_argument();
