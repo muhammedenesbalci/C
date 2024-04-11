@@ -100,4 +100,55 @@
 
         Runtime errors can be more challenging to identify and debug than syntax errors because they occur during program execution. Techniques such as using debugging tools, printing intermediate values, and systematically tracing the program's execution can help locate and resolve runtime errors.
 
+## make command
+- make komutu, birçok Unix ve Linux tabanlı işletim sistemlerinde kullanılan güçlü bir derleme aracıdır. make komutu, genellikle yazılım geliştirme süreçlerinde programların derlenmesi ve yönetilmesi için kullanılır. Temel olarak bir dosyada bulunan kaynak kodları derleyip, hedef dosyaları oluşturmak için kullanılır.
+
+- make komutu, genellikle Makefile adı verilen metin dosyalarını kullanarak nasıl çalışacağını yönlendirir. Makefile dosyaları, hedefler (targets), bağımlılıklar (dependencies) ve komutlar içerir.
+
+- İşlevsel olarak make komutu şu işleri yapabilir:
+
+- Derleme ve Bağlama (Compilation and Linking): C, C++, Java gibi programlama dilleri için kaynak kodları derler ve nihai çalıştırılabilir dosyaları oluşturur. Makefile içinde tanımlanan hedefler ve bağımlılıklar sayesinde sadece değişen dosyaların derlenmesi sağlanabilir.
+
+- Temizleme (Cleaning): Derleme işlemi sonucunda oluşan geçici ve çıktı dosyalarını temizlemek için make clean gibi komutlar kullanılabilir.
+
+- Otomatik İş Akışı (Automated Workflow): Büyük projelerde birden fazla dosyanın derlenmesi gerektiğinde, Makefile içinde tanımlanan hedefler arasındaki bağımlılıkları ve komutları otomatik olarak yöneterek süreci kolaylaştırır.
+
+- Özetle, make komutu, kaynak kodlarını derleme, bağlama ve yönetme süreçlerini otomatikleştirmek ve yönetmek için kullanılan bir araçtır. Makefile dosyaları, bu süreçleri tanımlar ve make komutu bu tanımlamalara göre çalışarak gerekli işlemleri gerçekleştirir.
+
+## Makefile
+- Makefile, bir yazılım projesini derlemek, bağlamak ve yönetmek için kullanılan bir yapılandırma dosyasıdır. Genellikle make komutuyla birlikte kullanılır ve proje içindeki kaynak dosyalarını nasıl derleneceğini ve yönetileceğini tanımlar. Makefile, proje dosyalarının derlenmesi için adım adım komutlar içerir ve bu komutların hangi koşullar altında çalışacağını belirtir.
+
+- Makefile, genellikle ASCII metin dosyası olarak yazılır ve proje dizinine Makefile veya makefile adıyla kaydedilir. Bununla birlikte, farklı adlarda Makefile dosyaları da kullanılabilir ve make komutu bu dosyaların adını argüman olarak alabilir.
+
+- Makefile dosyası içinde şu tür bilgiler bulunabilir:
+
+- Hedefler (Targets): Belirli işlemleri tanımlayan hedeflerdir. Örneğin, bir hedef C veya C++ kaynak dosyalarını derlemeyi veya temizlemeyi (clean) yönetebilir.
+
+- Bağımlılıklar (Dependencies): Bir hedefin çalışabilmesi için gereken kaynak dosyaları veya diğer hedeflerdir. Bu bağımlılıklar, hedefin yeniden derlenmesi gerekip gerekmediğini belirler.
+
+- Komutlar (Commands): Bir hedefin derlenmesi veya temizlenmesi için yapılması gereken komutlar. Bu komutlar, belirli bir hedef için çalıştırıldığında sırayla işletilir.
+
+    ```makefile
+        # Basit bir Makefile örneği
+
+        # Derleme hedefi ve bağımlılıkları
+        hello: main.o hello.o
+            gcc main.o hello.o -o hello
+
+        # main.c dosyasını derlemek için komut
+        main.o: main.c
+            gcc -c main.c -o main.o
+
+        # hello.c dosyasını derlemek için komut
+        hello.o: hello.c
+            gcc -c hello.c -o hello.o
+
+        # Temizleme hedefi ve komutu
+        clean:
+            rm -f *.o hello
+
+    ```
+
+
+
 
